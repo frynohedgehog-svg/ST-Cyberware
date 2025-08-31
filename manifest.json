@@ -1,0 +1,12 @@
+{
+  "name": "ST-Cyberware",
+  "title": "Cyberware Manager",
+  "description": "Manages Cyberpunk 2077-inspired cyberware slots for users and bots.",
+  "version": "1.0.0",
+  "author": "Based on ST-Outfits by lannashelton, modified by ChatGPT",
+  "requires": [],
+  "frontend": true,
+  "backend": false,
+  "css": ["style.css"],
+  "js": ["index.js"]
+}
