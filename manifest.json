@@ -1,8 +1,10 @@
 {
-  "display_name": "Cyberware Loadout",
-  "loading_order": 10,
-  "requires": [],
-  "js": "index.js",
-  "css": "style.css",
-  "generate_interceptor": "cyberwareInterceptor"
+  "name": "Cyberware Manager",
+  "id": "st-cyberware",
+  "author": "YourName",
+  "description": "Track your cyberware loadout across slots and categories.",
+  "version": "1.0.0",
+  "entry": "index.js",
+  "style": "style.css",
+  "requires": []
 }
