@@ -1,162 +1,113 @@
-import { getContext, extension_settings } from "../../../extensions.js";
-import { saveSettingsDebounced } from "../../../../script.js";
+import { SillyTavern } from '/scripts/extensions.js';
 
-console.log("[CyberwareManager] Starting extension loading...");
+let context;
+let cyberwareSlots = {};
 
-async function initializeExtension() {
-    const MODULE_NAME = 'cyberware_manager';
+// Define your cyberware slot categories
+const CYBERWARE_SLOTS = {
+    "Frontal Cortex": ["Slot 1", "Slot 2", "Slot 3"],
+    "Operating System": ["Slot 1"],
+    "Eyes": ["Slot 1"],
+    "Arms": ["Slot 1"],
+    "Nervous System": ["Slot 1", "Slot 2"],
+    "Integumentary System": ["Slot 1", "Slot 2", "Slot 3"],
+    "Skeleton": ["Slot 1", "Slot 2"],
+    "Circulatory System": ["Slot 1", "Slot 2", "Slot 3"],
+    "Hands": ["Slot 1"],
+    "Legs": ["Slot 1"]
+};
 
-    // Cyberpunk 2077 cyberware slots
-    const CYBERWARE_SLOTS = [
-        'FrontalCortex1',
-        'FrontalCortex2',
-        'FrontalCortex3',
-        'OperatingSystem',
-        'Eyes',
-        'Arms',
-        'Skeleton1',
-        'Skeleton2',
-        'Hands',
-        'NervousSystem1',
-        'NervousSystem2',
-        'NervousSystem3',
-        'CirculatorySystem1',
-        'CirculatorySystem2',
-        'CirculatorySystem3',
-        'IntegumentarySystem1',
-        'IntegumentarySystem2',
-        'IntegumentarySystem3',
-        'Legs'
-    ];
+// Load data from character card
+async function loadCyberware(characterId) {
+    cyberwareSlots = await SillyTavern.readExtensionField(characterId, "cyberware_loadout") || {};
+    renderCyberwarePanel();
+}
 
-    // Load bot + user managers/panels
-    const { BotCyberwareManager } = await import("./src/BotCyberwareManager.js");
-    const { BotCyberwarePanel } = await import("./src/BotCyberwarePanel.js");
-    const { UserCyberwareManager } = await import("./src/UserCyberwareManager.js");
-    const { UserCyberwarePanel } = await import("./src/UserCyberwarePanel.js");
-    
-    const botManager = new BotCyberwareManager(CYBERWARE_SLOTS);
-    const userManager = new UserCyberwareManager(CYBERWARE_SLOTS);
+// Save data into character card
+async function saveCyberware(characterId) {
+    await SillyTavern.writeExtensionField(characterId, "cyberware_loadout", cyberwareSlots);
+}
 
-    const botPanel = new BotCyberwarePanel(botManager, CYBERWARE_SLOTS, saveSettingsDebounced);
-    const userPanel = new UserCyberwarePanel(userManager, CYBERWARE_SLOTS, saveSettingsDebounced);
+// Create the cyberware panel
+function renderCyberwarePanel() {
+    const container = document.getElementById("cyberware-panel");
+    if (!container) return;
+    container.innerHTML = "";
 
-    // Make accessible globally
-    window.botCyberwarePanel = botPanel;
-    window.userCyberwarePanel = userPanel;
+    for (const [category, slots] of Object.entries(CYBERWARE_SLOTS)) {
+        const section = document.createElement("div");
+        section.className = "cyberware-section";
 
-    // Slash commands
-    function registerCyberwareCommands() {
-        const { registerSlashCommand } = SillyTavern.getContext();
+        const header = document.createElement("h3");
+        header.textContent = category;
+        section.appendChild(header);
 
-        registerSlashCommand('cyberware-bot', (...args) => {
-            console.log("Bot Cyberware command triggered");
-            botPanel.toggle();
-        }, [], 'Toggle character cyberware tracker', true, true);
-        
-        registerSlashCommand('cyberware-user', (...args) => {
-            console.log("User Cyberware command triggered");
-            userPanel.toggle();
-        }, [], 'Toggle user cyberware tracker', true, true);
-    }
+        slots.forEach((slot, idx) => {
+            const slotDiv = document.createElement("div");
+            slotDiv.className = "cyberware-slot";
 
-    // Refresh when chat/character changes
-    function updateForCurrentCharacter() {
-        const context = getContext();
-        const charName = context.characters[context.characterId]?.name || 'Unknown';
-        botManager.setCharacter(charName);
-        botPanel.updateCharacter(charName);
-    }
+            const label = document.createElement("label");
+            label.textContent = slot;
+            slotDiv.appendChild(label);
 
-    function setupEventListeners() {
-        const context = getContext();
-        const { eventSource, event_types } = context;
-        eventSource.on(event_types.CHAT_CHANGED, updateForCurrentCharacter);
-        eventSource.on(event_types.CHARACTER_CHANGED, updateForCurrentCharacter);
-    }
+            const input = document.createElement("input");
+            input.type = "text";
+            input.placeholder = "Enter cyberware";
+            input.value = cyberwareSlots[`${category}-${idx}`] || "";
+            input.addEventListener("change", async () => {
+                cyberwareSlots[`${category}-${idx}`] = input.value;
+                await saveCyberware(SillyTavern.getSelectedCharacterId());
+            });
 
-    // Settings
-    function initSettings() {
-        if (!extension_settings[MODULE_NAME]) {
-            extension_settings[MODULE_NAME] = {
-                autoOpenBot: true,
-                autoOpenUser: false,
-                enableSysMessages: true,
-                presets: {
-                    bot: {},
-                    user: {}
-                }
-            };
-        }
-    }
-
-    function createSettingsUI() {
-        const settingsHtml = `
-        <div class="cyberware-extension-settings">
-            <div class="inline-drawer">
-                <div class="inline-drawer-toggle inline-drawer-header">
-                    <b>Cyberware Manager Settings</b>
-                    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
-                </div>
-                <div class="inline-drawer-content">
-                    <div class="flex-container">
-                        <label for="cyberware-sys-toggle">Enable system messages</label>
-                        <input type="checkbox" id="cyberware-sys-toggle"
-                            ${extension_settings[MODULE_NAME].enableSysMessages ? 'checked' : ''}>
-                    </div>
-                    <div class="flex-container">
-                        <label for="cyberware-auto-bot">Auto-open character panel</label>
-                        <input type="checkbox" id="cyberware-auto-bot"
-                            ${extension_settings[MODULE_NAME].autoOpenBot ? 'checked' : ''}>
-                    </div>
-                    <div class="flex-container">
-                        <label for="cyberware-auto-user">Auto-open user panel</label>
-                        <input type="checkbox" id="cyberware-auto-user"
-                            ${extension_settings[MODULE_NAME].autoOpenUser ? 'checked' : ''}>
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-
-        $("#extensions_settings").append(settingsHtml);
-
-        $("#cyberware-sys-toggle").on("input", function() {
-            extension_settings[MODULE_NAME].enableSysMessages = $(this).prop('checked');
-            saveSettingsDebounced();
+            slotDiv.appendChild(input);
+            section.appendChild(slotDiv);
         });
-        
-        $("#cyberware-auto-bot").on("input", function() {
-            extension_settings[MODULE_NAME].autoOpenBot = $(this).prop('checked');
-            saveSettingsDebounced();
-        });
-        
-        $("#cyberware-auto-user").on("input", function() {
-            extension_settings[MODULE_NAME].autoOpenUser = $(this).prop('checked');
-            saveSettingsDebounced();
-        });
-    }
 
-    // Init
-    initSettings();
-    registerCyberwareCommands();
-    setupEventListeners();
-    updateForCurrentCharacter();
-    createSettingsUI();
-
-    if (extension_settings[MODULE_NAME].autoOpenBot) {
-        setTimeout(() => botPanel.show(), 1000);
-    }
-    if (extension_settings[MODULE_NAME].autoOpenUser) {
-        setTimeout(() => userPanel.show(), 1000);
+        container.appendChild(section);
     }
 }
 
-$(async () => {
-    try {
-        await initializeExtension();
-        console.log("[CyberwareManager] Extension loaded successfully");
-    } catch (error) {
-        console.error("[CyberwareManager] Initialization failed", error);
-    }
-});
+// Macro for lorebook / templates
+function registerMacro() {
+    SillyTavern.registerMacro("cyberware", () => {
+        return JSON.stringify(cyberwareSlots, null, 2);
+    });
+}
+
+// Prompt interceptor to inject cyberware into context
+globalThis.cyberwareInterceptor = async function (chat, contextSize, abort, type) {
+    const characterId = SillyTavern.getSelectedCharacterId();
+    const loadout = await SillyTavern.readExtensionField(characterId, "cyberware_loadout") || {};
+
+    const systemNote = {
+        is_user: false,
+        name: "Cyberware System",
+        send_date: Date.now(),
+        mes: `User cyberware loadout:\n${JSON.stringify(loadout, null, 2)}`
+    };
+
+    // Insert system note just before the last user message
+    chat.splice(chat.length - 1, 0, systemNote);
+};
+
+// Bootstrapping the extension
+export async function init() {
+    context = SillyTavern.getContext();
+
+    // Add cyberware panel into extensions tab
+    const tab = document.createElement("div");
+    tab.className = "cyberware-container";
+
+    const panel = document.createElement("div");
+    panel.id = "cyberware-panel";
+    tab.appendChild(panel);
+
+    context.ui.extensions.addTab("Cyberware Loadout", tab);
+
+    // Load data when character changes
+    SillyTavern.onCharacterSelected(async (id) => {
+        await loadCyberware(id);
+    });
+
+    registerMacro();
+}
