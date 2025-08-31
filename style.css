@@ -1,0 +1,34 @@
+.cyberware-panel {
+    position: fixed;
+    top: 10%;
+    right: 10%;
+    background: #111;
+    border: 2px solid #0ff;
+    padding: 20px;
+    border-radius: 8px;
+    color: #0ff;
+    font-family: monospace;
+    max-height: 80%;
+    overflow-y: auto;
+    z-index: 9999;
+}
+
+.cyberware-slot {
+    display: flex;
+    justify-content: space-between;
+    margin: 6px 0;
+}
+
+.cyberware-slot label {
+    flex: 1;
+    margin-right: 10px;
+    color: #0ff;
+}
+
+.cyberware-slot input {
+    flex: 2;
+    background: #222;
+    border: 1px solid #0ff;
+    color: #fff;
+    padding: 4px;
+}
