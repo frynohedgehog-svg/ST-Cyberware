@@ -1,123 +1,47 @@
-/* === Cyberware Extension Styles === */
-/* Panel container */
-.cyberware-panel {
-    position: fixed;
-    top: 12%;
-    right: 5%;
-    width: 320px;
-    background: rgba(10, 10, 20, 0.95);
-    border: 2px solid #0ff;
-    border-radius: 12px;
-    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+.cyberware-container {
+    background: rgba(10, 10, 15, 0.95);
+    padding: 15px;
+    font-family: "Orbitron", monospace;
     color: #0ff;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.9em;
-    padding: 14px;
-    max-height: 80vh;
-    overflow-y: auto;
-    z-index: 9999;
 }
 
-/* Header */
-.cyberware-header {
-    font-size: 1.2em;
-    font-weight: bold;
-    text-align: center;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid rgba(0,255,255,0.4);
-    text-shadow: 0 0 6px #0ff;
-}
-
-/* Category blocks (Frontal Cortex, Arms, Optics, etc.) */
-.cyberware-category {
-    margin-bottom: 8px;
-    border: 1px solid rgba(0,255,255,0.3);
-    border-radius: 6px;
-    overflow: hidden;
+.cyberware-section {
+    border: 1px solid #0ff;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
     background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px #0ff;
 }
 
-/* Category header */
-.cyberware-category-header {
-    background: rgba(0,255,255,0.1);
-    padding: 8px 10px;
-    cursor: pointer;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    user-select: none;
-    transition: background 0.2s ease-in-out;
+.cyberware-section h3 {
+    color: #f0f;
+    text-shadow: 0 0 5px #f0f;
+    margin-bottom: 8px;
 }
 
-.cyberware-category-header:hover {
-    background: rgba(0,255,255,0.25);
-}
-
-/* Dropdown slots hidden by default */
-.cyberware-slots {
-    display: none;
-    padding: 8px 10px;
-    animation: expand 0.3s ease-in-out;
-}
-
-/* Slot layout */
 .cyberware-slot {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 4px 0;
-    background: rgba(0,255,255,0.05);
-    padding: 6px;
-    border-radius: 4px;
+    margin: 5px 0;
 }
 
-/* Slot labels */
 .cyberware-slot label {
     flex: 1;
-    margin-right: 10px;
-    color: #0ff;
-    text-shadow: 0 0 4px #0ff;
+    color: #fff;
 }
 
-/* Slot inputs */
 .cyberware-slot input {
     flex: 2;
     background: #111;
     border: 1px solid #0ff;
-    border-radius: 4px;
-    color: #fff;
+    color: #0ff;
     padding: 4px;
-    outline: none;
-    font-family: inherit;
-    transition: border-color 0.2s;
+    border-radius: 4px;
 }
 
 .cyberware-slot input:focus {
-    border-color: #ff0;
-    box-shadow: 0 0 6px #ff0;
-}
-
-/* Open dropdown */
-.cyberware-category.open .cyberware-slots {
-    display: block;
-}
-
-/* Expand animation */
-@keyframes expand {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Scrollbar styling */
-.cyberware-panel::-webkit-scrollbar {
-    width: 8px;
-}
-.cyberware-panel::-webkit-scrollbar-thumb {
-    background: rgba(0,255,255,0.4);
-    border-radius: 4px;
-}
-.cyberware-panel::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.6);
+    outline: none;
+    box-shadow: 0 0 8px #0ff;
 }
